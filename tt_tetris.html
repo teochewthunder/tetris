@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Tetris</title>
+
+		<style>
+			#tetris_wrapper
+			{
+				border:1px solid #000000;
+				width:200px;
+				height:600px;
+				margin:0 auto 0 auto;
+				overflow:hidden;
+			}
+
+			#display_wrapper
+			{
+				width:100%;
+				height:100px;
+			}
+
+			#control_wrapper
+			{
+				width:100%;
+				height:100px;
+			}
+
+			#background_wrapper
+			{
+				width:100%;
+				height:400px;
+				background-color:#444444;
+			}
+
+			#block_wrapper
+			{
+				width:80px;
+				height:80px;
+				position:absolute;
+				overflow:visible;
+			}
+
+			#shape_wrapper
+			{
+				width:400%;
+				height:100%;
+				margin-left:0%;
+			}
+
+			.shape_rotation,#pnlNextShape
+			{
+				width:80px;
+				height:80px;
+				float:left;
+			}
+
+			.block
+			{
+				width:20px;
+				height:20px;
+				float:left;
+			}
+
+			.shapeblock
+			{
+				background-color:#FFFFFF;
+			}
+
+			.emptyblock
+			{
+				background-color:#000000;
+			}
+		</style>
+
+		<script>
+			var shapes=[];
+			shapes[0]=[
+				{"x":2,"y":2,"blocks":[[1,1,0,0],[1,1,0,0],[0,0,0,0],[0,0,0,0]]},
+				{"x":2,"y":2,"blocks":[[1,1,0,0],[1,1,0,0],[0,0,0,0],[0,0,0,0]]},
+				{"x":2,"y":2,"blocks":[[1,1,0,0],[1,1,0,0],[0,0,0,0],[0,0,0,0]]},
+				{"x":2,"y":2,"blocks":[[1,1,0,0],[1,1,0,0],[0,0,0,0],[0,0,0,0]]}
+			];
+			shapes[1]=[
+				{"x":1,"y":4,"blocks":[[1,1,1,1],[0,0,0,0],[0,0,0,0],[0,0,0,0]]},
+				{"x":4,"y":1,"blocks":[[1,0,0,0],[1,0,0,0],[1,0,0,0],[1,0,0,0]]},
+				{"x":1,"y":4,"blocks":[[1,1,1,1],[0,0,0,0],[0,0,0,0],[0,0,0,0]]},
+				{"x":4,"y":1,"blocks":[[1,0,0,0],[1,0,0,0],[1,0,0,0],[1,0,0,0]]}
+			];
+			shapes[2]=[
+				{"x":3,"y":2,"blocks":[[1,1,0,0],[0,1,1,0],[0,0,0,0],[0,0,0,0]]},
+				{"x":2,"y":3,"blocks":[[0,1,0,0],[1,1,0,0],[1,0,0,0],[0,0,0,0]]},
+				{"x":3,"y":2,"blocks":[[1,1,0,0],[0,1,1,0],[0,0,0,0],[0,0,0,0]]},
+				{"x":2,"y":3,"blocks":[[0,1,0,0],[1,1,0,0],[1,0,0,0],[0,0,0,0]]}
+			];
+			shapes[3]=[
+				{"x":3,"y":2,"blocks":[[1,1,1,0],[0,0,1,0],[0,0,0,0],[0,0,0,0]]},
+				{"x":2,"y":3,"blocks":[[0,1,0,0],[0,1,0,0],[1,1,0,0],[0,0,0,0]]},
+				{"x":3,"y":2,"blocks":[[1,0,0,0],[1,1,1,0],[0,0,0,0],[0,0,0,0]]},
+				{"x":2,"y":3,"blocks":[[1,1,0,0],[1,0,0,0],[1,0,0,0],[0,0,0,0]]}
+			];
+			shapes[4]=[
+				{"x":2,"y":3,"blocks":[[1,1,1,0],[0,1,0,0],[0,0,0,0],[0,0,0,0]]},
+				{"x":3,"y":2,"blocks":[[0,1,0,0],[1,1,0,0],[0,1,0,0],[0,0,0,0]]},
+				{"x":2,"y":3,"blocks":[[0,1,0,0],[1,1,1,0],[0,0,0,0],[0,0,0,0]]},
+				{"x":3,"y":2,"blocks":[[1,0,0,0],[1,1,0,0],[1,0,0,0],[0,0,0,0]]}
+			];
+
+			var rows=[];
+			for (var i=0;i<20;i++)
+			{
+				rows[i]=[0,0,0,0,0,0,0,0,0,0];
+			}
+
+			var colors=["#004400","#000044","#440000","#004444","#444400"];
+			var nextcolorindex=generaterandomno(0,4);
+			var currentcolorindex=generaterandomno(0,4);
+			var nextcolor=colors[nextcolorindex];
+			var currentcolor=colors[currentcolorindex];
+			var nextshapeindex=generaterandomno(0,4),currentshapeindex=generaterandomno(0,4);
+			var nextshape=shapes[nextshapeindex];
+			var currentshape=shapes[currentshapeindex];
+			var currentrotation=0;
+
+			function generaterandomno(varmin,varmax)
+			{
+				return Math.floor((Math.random() * (varmax-varmin+1)) + varmin);
+			}
+
+			function render()
+			{
+				var wrapper=document.getElementById("shape_wrapper");
+				var shape_rotation=document.getElementsByClassName("shape_rotation");
+				var block;
+
+				for (var i=0;i<shape_rotation.length;i++)
+				{
+					shape_rotation[i].innerHTML="";
+
+					for (var j=0;j<currentshape[i].blocks.length;j++)
+					{
+						for (var k=0;k<currentshape[i].blocks[j].length;k++)
+						{
+							block=document.createElement("div");
+							block.id=""+i+j+k;
+							if (currentshape[i].blocks[j][k]==1)
+							{
+								block.className="block shapeblock";
+								block.style.backgroundColor=currentcolor;
+							}
+							else
+							{
+								block.className="block emptyblock";
+							}
+							shape_rotation[i].appendChild(block);
+						}
+					}					
+				}
+
+				wrapper=document.getElementById("pnlNextShape");
+				wrapper.innerHTML="";
+
+				for (var j=0;j<nextshape[0].blocks.length;j++)
+				{
+					for (var k=0;k<nextshape[0].blocks[j].length;k++)
+					{
+						block=document.createElement("div");
+						if (nextshape[0].blocks[j][k]==1)
+						{
+							block.className="block shapeblock";
+							block.style.backgroundColor=nextcolor;
+						}
+						else
+						{
+							block.className="block emptyblock";
+						}
+						wrapper.appendChild(block);
+					}
+				}	
+
+				wrapper=document.getElementById("background_wrapper");
+
+				for (var i=0;i<rows.length;i++)
+				{
+					for (var j=0;j<rows[i].length;j++)
+					{
+						block=document.createElement("div");
+						block.id="block_"+i+"_"+j;
+
+						if (rows[i][j]==1)
+						{
+							block.className="block shapeblock";
+							block.style.backgroundColor=currentcolor;
+						}
+						else
+						{
+							block.className="block emptyblock";
+						}
+
+						wrapper.appendChild(block);
+					}					
+				}
+			}
+
+			function rotate()
+			{
+				var temprotation=currentrotation;
+
+				if (temprotation==3)
+				{
+					temprotation=0;
+				}
+				else
+				{
+					temprotation++;
+				}
+
+				if (testrotation(temprotation))
+				{
+					currentrotation=temprotation;
+					var wrapper=document.getElementById("shape_wrapper");
+					wrapper.style.marginLeft="-"+(currentrotation*100)+"%";
+				}
+			}
+
+			function testrotation(varrotation)
+			{
+				return true;
+			}
+		</script>
+	</head>
+	<body onload="render()">
+		<div id="tetris_wrapper">
+			<div id="display_wrapper">
+				<div id="pnlScore"></div>
+				<div id="pnlNextShape"></div>
+			</div>
+
+			<div id="background_wrapper">
+				<div id="block_wrapper">
+					<div id="shape_wrapper">
+						<div class="shape_rotation"></div>
+						<div class="shape_rotation"></div>
+						<div class="shape_rotation"></div>
+						<div class="shape_rotation"></div>
+					</div>
+				</div>
+			</div>
+
+			<div id="control_wrapper">
+				<input type="button" id="btnLeft" value="Left">
+				<input type="button" id="btnDown" value="Down">
+				<input type="button" id="btnx" value="Right">
+				<input type="button" id="btnRotate" onclick="rotate();" value="Rotate">
+			</div>
+		</div>
+	</body>
+</html>
