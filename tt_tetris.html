@@ -128,6 +128,7 @@
 			var timer;
 			var points=10;
 			var gameover=true;
+			var paused=false;
 
 			function generaterandomno(varmin,varmax)
 			{
@@ -344,6 +345,7 @@
 			    if (e.which==50) drop();
 			    if (e.which==52) moveleft();
 			    if (e.which==54) moveright();
+			    if (e.which==112) pause();
 		    }
 			function testposition(varrotation,varx,vary)
 			{
@@ -467,6 +469,21 @@
 					end();
 				}
 			}
+			function pause()
+			{
+				if (paused)
+				{
+					paused=false;
+					timer=setInterval(function(){movedown();},gettimersecs());
+					document.getElementById("btnPause").value="Pause";
+				}
+				else
+				{
+					paused=true;
+					clearInterval(timer);
+					document.getElementById("btnPause").value="Resume";
+				}
+			}
 			function end()
 			{
 				gameover=true;
@@ -501,6 +518,8 @@
 				<input type="button" id="btnRotate" onclick="rotate();" value="Rotate">
 				<br /><br />
 				<input type="button" id="btnStart" onclick="initialize(true);" value="New Game">
+				<br /><br />
+				<input type="button" id="btnPause" onclick="pause();" value="Pause">
 			</div>
 		</div>
 	</body>
